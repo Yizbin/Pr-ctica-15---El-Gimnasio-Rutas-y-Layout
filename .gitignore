@@ -1,0 +1,22 @@
+@"
+# Dependencias y construcción
+node_modules
+dist
+dist-ssr
+
+# Variables de entorno
+.env
+.env.*
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor y sistema
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+Thumbs.db
+*.local
+"@ | Out-File -Encoding utf8 .gitignore
