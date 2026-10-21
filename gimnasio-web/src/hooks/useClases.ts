@@ -1,5 +1,3 @@
-// hooks/useClases.ts — RECURSO: el mismo patrón de useProductos (Práctica 14).
-// Pide las clases al montar y regresa los tres estados de toda petición.
 import { useEffect, useState } from 'react';
 import { traerClases } from '../servicios/gimnasio.ts';
 import { mensajeDeError } from '../servicios/api.ts';
