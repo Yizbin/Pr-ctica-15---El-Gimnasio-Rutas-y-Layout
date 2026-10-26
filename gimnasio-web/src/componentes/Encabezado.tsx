@@ -1,14 +1,13 @@
-// <Encabezado> — RECURSO: la marca, los enlaces y el botón de Entrar.
-// NavLink es un <Link> que además sabe si su ruta es la actual: así se
-// pinta el enlace activo sin una línea de JavaScript propio.
 import { Link, NavLink } from 'react-router';
+import { useSesion } from '../context/SesionContext.tsx';
 
-// La clase del enlace según si está activo o no.
 function claseEnlace({ isActive }: { isActive: boolean }) {
   return isActive ? 'barra__enlace barra__enlace--activo' : 'barra__enlace';
 }
 
 export function Encabezado() {
+  const { sesion, salir } = useSesion();
+
   return (
     <header className="barra">
       <div className="barra__interior">
@@ -24,9 +23,17 @@ export function Encabezado() {
           </ul>
         </nav>
 
-        {/* Práctica 16: aquí va quién inició sesión y el botón Salir. */}
         <div className="barra__sesion">
-          <Link to="/entrar" className="boton boton--chico">Entrar</Link>
+          {sesion ? (
+            <>
+              <span className="barra__usuario">{sesion.usuario.nombre}</span>
+              <button className="boton boton--chico boton--secundario" onClick={salir}>
+                Salir
+              </button>
+            </>
+          ) : (
+            <Link to="/entrar" className="boton boton--chico">Entrar</Link>
+          )}
         </div>
       </div>
     </header>

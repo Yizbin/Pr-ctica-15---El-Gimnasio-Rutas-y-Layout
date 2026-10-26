@@ -1,16 +1,59 @@
+import { useState, type FormEvent } from 'react';
+import { Link, useNavigate } from 'react-router';
+import { useSesion } from '../context/SesionContext.tsx';
+import { mensajeDeError } from '../servicios/api.ts';
+
 export default function PaginaEntrar() {
+  const { entrar } = useSesion();
+  const navegar = useNavigate();
+  const [correo, setCorreo] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [enviando, setEnviando] = useState(false);
+
+  async function enviar(e: FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setEnviando(true);
+    try {
+      await entrar(correo, password);
+      navegar('/clases');
+    } catch (err) {
+      setError(mensajeDeError(err, 'No se pudo iniciar sesión.'));
+    } finally {
+      setEnviando(false);
+    }
+  }
+
   return (
-    <form className="formulario">
+    <form className="formulario" onSubmit={enviar}>
       <h1>Entrar</h1>
+      {error && <p className="aviso aviso--error">{error}</p>}
+
       <label className="campo">
         <span className="campo__etiqueta">Correo</span>
-        <input className="campo__control" type="email" />
+        <input
+          className="campo__control"
+          type="email"
+          value={correo}
+          onChange={(e) => setCorreo(e.target.value)}
+        />
       </label>
+
       <label className="campo">
         <span className="campo__etiqueta">Contraseña</span>
-        <input className="campo__control" type="password" />
+        <input
+          className="campo__control"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
       </label>
-      <button className="boton boton--ancho" type="submit">Entrar</button>
+
+      <button className="boton boton--ancho" type="submit" disabled={enviando}>
+        {enviando ? 'Entrando…' : 'Entrar'}
+      </button>
+      <p className="formulario__pie">¿No tienes cuenta? <Link to="/registro">Regístrate</Link></p>
     </form>
   );
 }
