@@ -9,6 +9,7 @@ export const api = axios.create({
 });
 
 export const CLAVE_SESION = 'sesion';
+export const EVENTO_SESION_CERRADA = 'sesion-cerrada';
 
 export function leerSesionGuardada(): Sesion | null {
   try {
@@ -26,6 +27,18 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
+
+api.interceptors.response.use(
+  (respuesta) => respuesta,
+  (error) => {
+    const hayRespuesta401 = axios.isAxiosError(error) && error.response?.status === 401;
+    if (hayRespuesta401 && error.config?.url !== '/auth/login' && leerSesionGuardada()) {
+      localStorage.removeItem(CLAVE_SESION);
+      window.dispatchEvent(new Event(EVENTO_SESION_CERRADA));
+    }
+    return Promise.reject(error);
+  },
+);
 
 export interface Sobre<T> {
   data: T;

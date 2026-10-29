@@ -1,10 +1,12 @@
 import { Routes, Route, Navigate } from 'react-router';
 import { Layout } from './componentes/Layout.tsx';
 import { NoEncontrado } from './componentes/NoEncontrado.tsx';
+import { RutaProtegida } from './componentes/RutaProtegida.tsx';
 import PaginaClases from './paginas/PaginaClases.tsx';
 import PaginaClase from './paginas/PaginaClase.tsx';
 import PaginaEntrar from './paginas/PaginaEntrar.tsx';
 import PaginaRegistro from './paginas/PaginaRegistro.tsx';
+import PaginaMisInscripciones from './paginas/PaginaMisInscripciones.tsx';
 
 export default function App() {
   return (
@@ -17,6 +19,9 @@ export default function App() {
         </Route>
         <Route path="entrar" element={<PaginaEntrar />} />
         <Route path="registro" element={<PaginaRegistro />} />
+        <Route element={<RutaProtegida />}>
+          <Route path="mis-inscripciones" element={<PaginaMisInscripciones />} />
+        </Route>
         <Route path="*" element={<NoEncontrado />} />
       </Route>
     </Routes>
