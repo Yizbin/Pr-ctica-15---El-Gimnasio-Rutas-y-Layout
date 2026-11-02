@@ -109,3 +109,65 @@ Capturas en la carpeta `evidencias/`:
 4. `error-403.png`: mensaje de la API ante el 403.
 5. `token-falso-401.png`: token falso, el 401 en la pestaña Red y la sesión cerrada.
 6. `curl-sin-token.png`: `curl` a `/inscripciones/mias` sin token respondiendo 401.
+
+7. # Practica 18 – El gimnasio: lazy loading, el build y Zustand
+
+## Ejercicio 1
+
+**Archivos que genera el build**
+
+| Archivo | Antes (sin lazy) | Después (con lazy) |
+|---|---|---|
+| `index-*.js` (principal) | 319.30 kB (gzip 102.96 kB) ← | 315.23 kB (gzip 102.73 kB) ← |
+| `PaginaClase-*.js` | – | 2.57 kB ← |
+| `PaginaRegistro-*.js` | – | 1.52 kB ← |
+| `PaginaClases-*.js` | – | 1.46 kB ← |
+| `PaginaEntrar-*.js` | – | 1.30 kB ← |
+| `PaginaMisInscripciones-*.js` | – | 1.04 kB ← |
+| `MensajeError-*.js` | – | 0.25 kB ← |
+| `index-*.css` | 6.43 kB ← | 6.43 kB ← |
+
+Antes el build generaba un solo archivo JS. Con `React.lazy` genera uno por
+página, más un archivo compartido (`MensajeError`) que Vite separó porque lo
+usan varias páginas. Con `vite preview` en el puerto 5173, la pestaña Red
+muestra que cada archivo de página se descarga hasta que se visita su ruta.
+(Capturas en /evidencias.)
+
+**¿Cuánto se ahorró y por qué el ahorro es pequeño en esta aplicación?**
+El JS que se descarga al inicio bajó de 319.30 kB a 315.23 kB, es decir, unos
+4 kB (alrededor de 1.3 %). Es pequeño porque las páginas son muy chicas (entre
+1 y 2.5 kB cada una, unos 8 kB en total) y casi todo el peso del bundle son las
+librerías (React, React Router y Axios), que se necesitan desde la primera
+carga sin importar la ruta. Además, `loading="lazy"` solo aplaza las imágenes
+que están fuera de la pantalla, y el catálogo tiene pocas, así que casi todas
+se ven de inmediato y casi no hay nada que aplazar.
+
+**¿Por qué falla la API si el preview corre en el puerto 4173?**
+Porque un origen se define por protocolo, dominio y puerto, así que
+`localhost:4173` y `localhost:5173` son orígenes distintos. El backend solo
+permite por CORS el origen del servidor de desarrollo (`localhost:5173`). Al
+abrir la app desde el 4173, el navegador ve que la respuesta de la API no trae
+`Access-Control-Allow-Origin` para ese origen y la bloquea. Se soluciona
+sirviendo el preview en el 5173 (`vite preview --port 5173`) o agregando el
+4173 a los orígenes permitidos del backend. (Captura del error en /evidencias.)
+
+## Ejercicio 2
+
+Se creó un store de Zustand (`src/almacenes/inscripcionesStore.ts`) con las
+inscripciones, el estado de carga, el error y las funciones `cargar` y
+`vaciar`. El store se llena al iniciar sesión (y al abrir la app si ya había
+una sesión guardada) y se vacía al salir o cuando el interceptor cierra la
+sesión por un 401. El encabezado muestra cuántas inscripciones tiene la persona,
+el detalle de la clase marca como "Inscrito" los horarios que ya están en el
+store, y Mis inscripciones lee del store en lugar de pedir sus datos.
+(Capturas del contador antes y después de inscribirse en /evidencias.)
+
+**¿Cuándo conviene un contexto y cuándo un store?**
+El contexto conviene para datos que casi no cambian y que necesita buena parte
+del árbol de componentes, como la sesión: cuando su valor cambia, se vuelven a
+renderizar todos los componentes que lo consumen. Un store como Zustand conviene
+para datos que cambian seguido y se comparten entre varias páginas, como las
+inscripciones: cada componente se suscribe solo a la parte que usa (por
+ejemplo, el encabezado solo se renderiza cuando cambia el conteo) y el store
+se puede usar fuera de los componentes, como hace el contexto de sesión con
+`getState()` para llenarlo y vaciarlo.
