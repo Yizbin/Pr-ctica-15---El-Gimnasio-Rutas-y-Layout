@@ -20,7 +20,7 @@ export default function PaginaClases() {
       <div className="rejilla">
         {clases.map((c) => (
           <Link key={c.id} to={`/clases/${c.id}`} className="tarjeta-clase">
-            <img className="tarjeta-clase__imagen" src={urlImagen(c.imagen)} alt={c.nombre} />
+            <img className="tarjeta-clase__imagen" src={urlImagen(c.imagen)} alt={c.nombre} loading="lazy" />
             <div className="tarjeta-clase__cuerpo">
               <span className={`etiqueta etiqueta--${c.categoria}`}>{c.categoria}</span>
               <span className="tarjeta-clase__titulo">{c.nombre}</span>

@@ -1,11 +1,14 @@
 import { Link } from 'react-router';
-import { useMisInscripciones } from '../hooks/useMisInscripciones.ts';
+import { useInscripcionesStore } from '../almacenes/inscripcionesStore.ts';
 import { urlImagen } from '../servicios/api.ts';
 import { Cargando } from '../componentes/Cargando.tsx';
 import { MensajeError } from '../componentes/MensajeError.tsx';
 
 export default function PaginaMisInscripciones() {
-  const { inscripciones, cargando, error, reintentar } = useMisInscripciones();
+  const inscripciones = useInscripcionesStore((s) => s.inscripciones);
+  const cargando = useInscripcionesStore((s) => s.cargando);
+  const error = useInscripcionesStore((s) => s.error);
+  const reintentar = useInscripcionesStore((s) => s.cargar);
 
   if (cargando) return <Cargando />;
   if (error) return <MensajeError mensaje={error} onReintentar={reintentar} />;

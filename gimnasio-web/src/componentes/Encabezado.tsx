@@ -1,5 +1,6 @@
 import { Link, NavLink } from 'react-router';
 import { useSesion } from '../context/SesionContext.tsx';
+import { esConfirmada, useInscripcionesStore } from '../almacenes/inscripcionesStore.ts';
 
 function claseEnlace({ isActive }: { isActive: boolean }) {
   return isActive ? 'barra__enlace barra__enlace--activo' : 'barra__enlace';
@@ -7,6 +8,7 @@ function claseEnlace({ isActive }: { isActive: boolean }) {
 
 export function Encabezado() {
   const { sesion, salir } = useSesion();
+  const total = useInscripcionesStore((s) => s.inscripciones.filter(esConfirmada).length);
 
   return (
     <header className="barra">
@@ -19,7 +21,7 @@ export function Encabezado() {
         <nav>
           <ul className="barra__enlaces">
             <li><NavLink to="/clases" className={claseEnlace}>Clases</NavLink></li>
-            <li><NavLink to="/mis-inscripciones" className={claseEnlace}>Mis inscripciones</NavLink></li>
+            <li><NavLink to="/mis-inscripciones" className={claseEnlace}>Mis inscripciones{sesion && ` (${total})`}</NavLink></li>
           </ul>
         </nav>
 

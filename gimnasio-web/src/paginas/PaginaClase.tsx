@@ -4,6 +4,7 @@ import { useClase } from '../hooks/useClase.ts';
 import { useSesion } from '../context/SesionContext.tsx';
 import { inscribirse } from '../servicios/gimnasio.ts';
 import { mensajeDeError, urlImagen } from '../servicios/api.ts';
+import { esConfirmada, useInscripcionesStore } from '../almacenes/inscripcionesStore.ts';
 import { Cargando } from '../componentes/Cargando.tsx';
 import { MensajeError } from '../componentes/MensajeError.tsx';
 
@@ -18,6 +19,8 @@ export default function PaginaClase() {
   const { sesion } = useSesion();
   const { clase, cargando, error, reintentar } = useClase(Number(id));
   const [aviso, setAviso] = useState<Aviso | null>(null);
+  const inscripciones = useInscripcionesStore((s) => s.inscripciones);
+  const cargarInscripciones = useInscripcionesStore((s) => s.cargar);
   const [inscribiendoId, setInscribiendoId] = useState<number | null>(null);
 
   async function inscribirme(horarioId: number) {
@@ -30,6 +33,7 @@ export default function PaginaClase() {
     try {
       await inscribirse(horarioId);
       setAviso({ tipo: 'exito', texto: '¡Listo! Quedaste inscrito en ese horario.' });
+      await cargarInscripciones();
       reintentar();
     } catch (e) {
       setAviso({ tipo: 'error', texto: mensajeDeError(e, 'No se pudo completar la inscripción.') });
@@ -37,6 +41,8 @@ export default function PaginaClase() {
       setInscribiendoId(null);
     }
   }
+
+  const horariosInscritos = new Set(inscripciones.filter(esConfirmada).map((i) => i.horario.id));
 
   if (cargando) return <Cargando />;
   if (error || !clase) {
@@ -66,7 +72,9 @@ export default function PaginaClase() {
                     {h.entrenador} · {h.disponibles} de {h.cupoMaximo} lugares
                   </div>
                 </div>
-                {h.disponibles === 0 ? (
+                {horariosInscritos.has(h.id) ? (
+                  <span className="horario__inscrito">✓ Inscrito</span>
+                ) : h.disponibles === 0 ? (
                   <span className="horario__lleno">Lleno</span>
                 ) : (
                   <button

@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { CLAVE_SESION, EVENTO_SESION_CERRADA, leerSesionGuardada } from '../servicios/api.ts';
 import { entrar as entrarApi, registrar as registrarApi } from '../servicios/sesion.ts';
+import { useInscripcionesStore } from '../almacenes/inscripcionesStore.ts';
 import type { Sesion } from '../tipos.ts';
 
 interface ValorSesion {
@@ -16,7 +17,12 @@ export function SesionProvider({ children }: { children: ReactNode }) {
   const [sesion, setSesion] = useState<Sesion | null>(leerSesionGuardada);
 
   useEffect(() => {
-    const cerrar = () => setSesion(null);
+    if (leerSesionGuardada()) void useInscripcionesStore.getState().cargar();
+
+    const cerrar = () => {
+      useInscripcionesStore.getState().vaciar();
+      setSesion(null);
+    };
     window.addEventListener(EVENTO_SESION_CERRADA, cerrar);
     return () => window.removeEventListener(EVENTO_SESION_CERRADA, cerrar);
   }, []);
@@ -24,6 +30,7 @@ export function SesionProvider({ children }: { children: ReactNode }) {
   function guardar(nueva: Sesion) {
     localStorage.setItem(CLAVE_SESION, JSON.stringify(nueva));
     setSesion(nueva);
+    void useInscripcionesStore.getState().cargar();
   }
 
   async function entrar(correo: string, password: string) {
@@ -36,6 +43,7 @@ export function SesionProvider({ children }: { children: ReactNode }) {
 
   function salir() {
     localStorage.removeItem(CLAVE_SESION);
+    useInscripcionesStore.getState().vaciar();
     setSesion(null);
   }
 

@@ -1,12 +1,13 @@
+import { lazy } from 'react';
 import { Routes, Route, Navigate } from 'react-router';
 import { Layout } from './componentes/Layout.tsx';
 import { NoEncontrado } from './componentes/NoEncontrado.tsx';
 import { RutaProtegida } from './componentes/RutaProtegida.tsx';
-import PaginaClases from './paginas/PaginaClases.tsx';
-import PaginaClase from './paginas/PaginaClase.tsx';
-import PaginaEntrar from './paginas/PaginaEntrar.tsx';
-import PaginaRegistro from './paginas/PaginaRegistro.tsx';
-import PaginaMisInscripciones from './paginas/PaginaMisInscripciones.tsx';
+const PaginaClases = lazy(() => import('./paginas/PaginaClases.tsx'));
+const PaginaClase = lazy(() => import('./paginas/PaginaClase.tsx'));
+const PaginaEntrar = lazy(() => import('./paginas/PaginaEntrar.tsx'));
+const PaginaRegistro = lazy(() => import('./paginas/PaginaRegistro.tsx'));
+const PaginaMisInscripciones = lazy(() => import('./paginas/PaginaMisInscripciones.tsx'));
 
 export default function App() {
   return (
